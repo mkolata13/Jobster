@@ -1,4 +1,4 @@
-name: Run tests
+name: Run Tests
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     services:
@@ -53,9 +53,3 @@ jobs:
         with:
           name: test-results
           path: target/surefire-reports
-
-      - name: Build and Test with Maven
-        run: mvn clean verify
-
-      - name: Package Application
-        run: mvn package
