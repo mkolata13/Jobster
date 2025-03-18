@@ -1,0 +1,61 @@
+name: Run tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: jobster
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U user -d jobster"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+          cache: maven
+
+      - name: Create .env file from GitHub Secrets
+        run: |
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL }}" >> .env
+          echo "APP_PASSWORD=${{ secrets.APP_PASSWORD }}" >> .env
+
+      - name: Run Tests
+        run: mvn test
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports
+
+      - name: Build and Test with Maven
+        run: mvn clean verify
+
+      - name: Package Application
+        run: mvn package
