@@ -54,8 +54,7 @@ public class SecurityConfig {
                                 "job-posts/{id}/apply"
                         ).hasRole(Role.JOB_SEEKER.name())
                         .requestMatchers(
-                                "/users/**",
-                                "/enums/**"
+                                "/users/**"
                         ).hasAnyRole(Role.EMPLOYER.name(), Role.JOB_SEEKER.name())
                         .anyRequest()
                         .authenticated()
@@ -75,8 +74,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "https://localhost:8080",
-                "http://localhost:3000"
+                "http://localhost:8080",
+                "http://localhost:3000",
+                "http://localhost:5173"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));

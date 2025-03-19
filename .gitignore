@@ -34,9 +34,8 @@ build/
 
 ### OWN ###
 .env
-.mvn
 
 ### FRONTEND ###
-/jobster-frontend
+
 /jobster-frontend/.env
 /jobster-frontend/node_modules
