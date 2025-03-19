@@ -102,6 +102,7 @@ public class JobPostController {
         for (JobApplication jobApplication : jobApplications) {
             SimpleJobApplicationDto jobApplicationDto = new SimpleJobApplicationDto(jobApplication.getId(),
                     jobApplication.getJobSeeker(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+            jobApplicationDtos.add(jobApplicationDto);
         }
 
         return ResponseEntity.ok(jobApplicationDtos);
