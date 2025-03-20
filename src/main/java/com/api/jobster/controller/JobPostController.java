@@ -2,7 +2,6 @@ package com.api.jobster.controller;
 
 import com.api.jobster.dto.CreateJobPostDto;
 import com.api.jobster.dto.JobPostDto;
-import com.api.jobster.dto.SimpleJobApplicationDto;
 import com.api.jobster.model.Employer;
 import com.api.jobster.model.JobApplication;
 import com.api.jobster.dto.JobApplicationDto;
@@ -43,7 +42,7 @@ public class JobPostController {
         return ResponseEntity.ok(jobPostDtos);
     }
 
-    @GetMapping("/{status}")
+    @GetMapping("/status/{status}")
     public ResponseEntity<List<JobPostDto>> getActiveJobPosts(@PathVariable String status) {
         List<JobPost> jobPosts = jobPostService.getJobPosts(status);
 
@@ -86,22 +85,22 @@ public class JobPostController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         JobApplication jobApplication = jobApplicationService.createJobApplication(id, currentUser.getId());
-        JobApplicationDto result = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost(),
-                jobApplication.getJobSeeker(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+        JobApplicationDto result = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost().getId(),
+                jobApplication.getJobSeeker().getId(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
 
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}/applications")
-    public ResponseEntity<List<SimpleJobApplicationDto>> getApplicationsForJobPost(@PathVariable Long id) {
+    public ResponseEntity<List<JobApplicationDto>> getApplicationsForJobPost(@PathVariable Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         Employer employer = (Employer) currentUser;
         List<JobApplication> jobApplications = jobPostService.getAllJobApplications(id, employer.getId());
-        List<SimpleJobApplicationDto> jobApplicationDtos = new ArrayList<>();
+        List<JobApplicationDto> jobApplicationDtos = new ArrayList<>();
         for (JobApplication jobApplication : jobApplications) {
-            SimpleJobApplicationDto jobApplicationDto = new SimpleJobApplicationDto(jobApplication.getId(),
-                    jobApplication.getJobSeeker(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+            JobApplicationDto jobApplicationDto = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost().getId(),
+                    jobApplication.getJobSeeker().getId(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
             jobApplicationDtos.add(jobApplicationDto);
         }
 

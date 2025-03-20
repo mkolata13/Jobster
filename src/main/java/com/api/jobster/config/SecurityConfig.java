@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "job-applications/",
                                 "job-posts/{id}",
+                                "job-posts/status/{status}",
                                 "job-posts/{id}/apply"
                         ).hasRole(Role.JOB_SEEKER.name())
                         .requestMatchers(
@@ -78,7 +79,7 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://localhost:5173"
         ));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
 

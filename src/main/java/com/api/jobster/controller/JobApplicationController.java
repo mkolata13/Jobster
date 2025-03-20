@@ -29,8 +29,8 @@ public class JobApplicationController {
         User currentUser = (User) authentication.getPrincipal();
         Employer employer = (Employer) currentUser;
         JobApplication jobApplication = jobApplicationService.updateStatus(employer.getId(), id, status.status());
-        JobApplicationDto jobApplicationDto = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost(),
-                jobApplication.getJobSeeker(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+        JobApplicationDto jobApplicationDto = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost().getId(),
+                jobApplication.getJobSeeker().getId(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
 
         return ResponseEntity.ok(jobApplicationDto);
     }
@@ -43,8 +43,8 @@ public class JobApplicationController {
         List<JobApplication> jobApplications = jobApplicationService.findJobSeekerJobApplications(jobSeeker);
         List<JobApplicationDto> jobApplicationDtos = new ArrayList<>();
         for (JobApplication jobApplication : jobApplications) {
-            JobApplicationDto dto = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost(),
-                    jobApplication.getJobSeeker(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+            JobApplicationDto dto = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost().getId(),
+                    jobApplication.getJobSeeker().getId(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
             jobApplicationDtos.add(dto);
         }
 

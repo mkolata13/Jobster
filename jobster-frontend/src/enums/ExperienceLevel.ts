@@ -1,0 +1,8 @@
+export enum ExperienceLevel {
+    ENTRY_LEVEL = "ENTRY_LEVEL",
+    INTERNSHIP = "INTERNSHIP",
+    EXPERIENCED = "EXPERIENCED",
+    SENIOR = "SENIOR",
+    MANAGMENT = "MANAGMENT",
+    EXECUTIVE = "EXECUTIVE"
+}
