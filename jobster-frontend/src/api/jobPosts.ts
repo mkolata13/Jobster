@@ -17,7 +17,7 @@ export const getJobPost = async (id: number) => {
 }
 
 export const createJobPost = async (jobPost: any) => {
-    const response = await apiClient.post(`${API_URL}/job-posts/create`, jobPost);
+    const response = await apiClient.post(`${API_URL}/job-posts/`, jobPost);
     return response.data;
 }
 
@@ -27,6 +27,6 @@ export const getJobPostApplications = async (id: number) => {
 }
 
 export const applyToJobPost = async (jobPostId: number) => {
-    const response = await apiClient.post(`${API_URL}/job-posts/${jobPostId}/apply`);
+    const response = await apiClient.post(`${API_URL}/job-posts/${jobPostId}`);
     return response.data;
 }

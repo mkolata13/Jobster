@@ -11,6 +11,15 @@ import java.time.LocalDateTime;
  * DTO for {@link JobApplication}
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record JobApplicationDto(Long id, Long jobPostId, Long jobSeekerId,
-                                ApplicationStatus applicationStatus, LocalDateTime applicationDate) implements Serializable {
+public record JobApplicationDto(
+        Long id,
+        Long jobPostId,
+        Long jobSeekerId,
+        ApplicationStatus applicationStatus,
+        String companyName,
+        String title,
+        String jobTitle,
+        String firstName,
+        String lastName,
+        LocalDateTime applicationDate) implements Serializable {
 }

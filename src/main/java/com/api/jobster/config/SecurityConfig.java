@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,33 +34,35 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(
+                        .requestMatchers(HttpMethod.GET,
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
-                                "/auth/**",
-                                "job-posts/",
-                                "job-posts/{status}"
+                                "/job-posts/",
+                                "/job-posts/status/{status}",
+                                "/job-posts/{id}"
                         ).permitAll()
-                        .requestMatchers(
-                                "job-posts/create",
-                                "/job-applications/{id}",
-                                "/job-posts/{id}/update",
-                                "/job-posts/{id}/applications"
-                        ).hasRole(Role.EMPLOYER.name())
-                        .requestMatchers(
-                                "job-applications/",
-                                "job-posts/{id}",
-                                "job-posts/status/{status}",
-                                "job-posts/{id}/apply"
-                        ).hasRole(Role.JOB_SEEKER.name())
-                        .requestMatchers(
-                                "/users/**"
-                        ).hasAnyRole(Role.EMPLOYER.name(), Role.JOB_SEEKER.name())
-                        .anyRequest()
-                        .authenticated()
-                ).sessionManagement(session -> session
+                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/users/**")
+                        .hasAnyRole(Role.EMPLOYER.name(), Role.JOB_SEEKER.name())
+
+                        .requestMatchers(HttpMethod.POST, "/job-posts")
+                        .hasRole(Role.EMPLOYER.name())
+
+                        .requestMatchers(HttpMethod.POST, "/job-applications/{id}", "/job-posts/{id}")
+                        .hasRole(Role.JOB_SEEKER.name())
+
+                        .requestMatchers(HttpMethod.GET, "/job-posts/{id}/applications")
+                        .hasRole(Role.EMPLOYER.name())
+
+                        .requestMatchers(HttpMethod.PUT, "/job-posts/{id}")
+                        .hasRole(Role.EMPLOYER.name())
+
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -92,7 +95,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return (request, response, authException) -> {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Unauthorized: Authentication is required to access this resource.");
         };
     }
@@ -100,7 +103,7 @@ public class SecurityConfig {
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, accessDeniedException) -> {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 Forbidden
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Forbidden: You do not have the required role to access this resource.");
         };
     }

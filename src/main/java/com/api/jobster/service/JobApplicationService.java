@@ -36,6 +36,7 @@ public class JobApplicationService {
         JobApplication jobApplication = new JobApplication();
         jobApplication.setJobSeeker(jobSeeker);
         jobApplication.setJobPost(jobPost);
+        jobApplication.setCv(jobSeeker.getCv());
 
         return jobApplicationRepository.save(jobApplication);
     }

@@ -12,6 +12,7 @@ import { HelmetProvider } from "react-helmet-async";
 import VerifyAccount from "./components/Verification";
 import CreateJobPost from "./components/CreateJobPost";
 import Profile from "./components/Profile";
+import MyApplications from "./components/MyApplications";
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/verify" element={<VerifyAccount />} />
               <Route path="/job-posts/:id" element={<JobPostDetails />} />
+              <Route path="/my-applications" element={<MyApplications />} />
               <Route path="/create-post" element={<CreateJobPost />} />
             </Routes>
           </main>

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.api.jobster.controller.JobPostController.jobApplicationToDto;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/job-applications")
@@ -29,8 +31,7 @@ public class JobApplicationController {
         User currentUser = (User) authentication.getPrincipal();
         Employer employer = (Employer) currentUser;
         JobApplication jobApplication = jobApplicationService.updateStatus(employer.getId(), id, status.status());
-        JobApplicationDto jobApplicationDto = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost().getId(),
-                jobApplication.getJobSeeker().getId(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+        JobApplicationDto jobApplicationDto = jobApplicationToDto(jobApplication);
 
         return ResponseEntity.ok(jobApplicationDto);
     }
@@ -43,8 +44,7 @@ public class JobApplicationController {
         List<JobApplication> jobApplications = jobApplicationService.findJobSeekerJobApplications(jobSeeker);
         List<JobApplicationDto> jobApplicationDtos = new ArrayList<>();
         for (JobApplication jobApplication : jobApplications) {
-            JobApplicationDto dto = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost().getId(),
-                    jobApplication.getJobSeeker().getId(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+            JobApplicationDto dto = jobApplicationToDto(jobApplication);
             jobApplicationDtos.add(dto);
         }
 

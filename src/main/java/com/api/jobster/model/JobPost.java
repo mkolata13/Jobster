@@ -87,7 +87,9 @@ public class JobPost {
         return new ToStringBuilder(this)
                 .append("id", id)
                 .append("employer", employer)
-                .append("jobApplications", jobApplications)
+                .append("jobApplications", jobApplications != null
+                        ? jobApplications.stream().map(JobApplication::toString).toArray(String[]::new)
+                        : null)
                 .append("title", title)
                 .append("jobTitle", jobTitle)
                 .append("jobFunction", jobFunction)

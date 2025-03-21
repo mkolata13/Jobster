@@ -41,13 +41,12 @@ public class UserController {
         if (user.getRole() == Role.EMPLOYER) {
             Employer employer = (Employer) user;
             EmployerInfoDto output = new EmployerInfoDto(employer.getId(), employer.getEmail(), employer.getCompanyName(),
-                    employer.getCompanyWebsite(), employer.getJobPosts().toString(), employer.getRole().name());
+                    employer.getCompanyWebsite(), employer.getRole().name());
             return ResponseEntity.ok(output);
         } else if (user.getRole() == Role.JOB_SEEKER) {
             JobSeeker jobSeeker = (JobSeeker) user;
             JobSeekerInfoDto output = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
-                    jobSeeker.getLastName(), jobSeeker.getCv(), jobSeeker.getJobApplications().toString(),
-                    jobSeeker.getRole().name());
+                    jobSeeker.getLastName(), jobSeeker.getRole().name());
             return ResponseEntity.ok(output);
         }
 
@@ -60,7 +59,7 @@ public class UserController {
         User currentUser = (User) authentication.getPrincipal();
         Employer employer = employerService.updateEmployerInfo(currentUser.getId(), input);
         EmployerInfoDto employerInfoDto = new EmployerInfoDto(employer.getId(), employer.getEmail(), employer.getCompanyName(),
-                employer.getCompanyWebsite(), employer.getJobPosts().toString(), employer.getRole().name());
+                employer.getCompanyWebsite(), employer.getRole().name());
         return ResponseEntity.ok(employerInfoDto);
     }
 
@@ -70,7 +69,7 @@ public class UserController {
         User currentUser = (User) authentication.getPrincipal();
         JobSeeker jobSeeker = jobSeekerService.updateJobSeekerInfo(currentUser.getId(), input);
         JobSeekerInfoDto jobSeekerInfoDto = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
-                jobSeeker.getLastName(), jobSeeker.getCv(), jobSeeker.getJobApplications().toString(), jobSeeker.getRole().name());
+                jobSeeker.getLastName(), jobSeeker.getRole().name());
         return ResponseEntity.ok(jobSeekerInfoDto);
     }
 
@@ -86,7 +85,6 @@ public class UserController {
                         employer.getEmail(),
                         employer.getCompanyName(),
                         employer.getCompanyWebsite(),
-                        employer.getJobPosts().toString(),
                         employer.getRole().name()))
                 .collect(Collectors.toList());
 
@@ -105,8 +103,6 @@ public class UserController {
                         jobSeeker.getEmail(),
                         jobSeeker.getFirstName(),
                         jobSeeker.getLastName(),
-                        jobSeeker.getCv(),
-                        jobSeeker.getJobApplications().toString(),
                         jobSeeker.getRole().name()))
                 .collect(Collectors.toList());
 

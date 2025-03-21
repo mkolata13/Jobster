@@ -59,7 +59,7 @@ const Register = () => {
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Role</Form.Label>
+          <Form.Label>Account Type</Form.Label>
           <Form.Control
             as="select"
             value={role}

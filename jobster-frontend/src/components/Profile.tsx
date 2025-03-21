@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { getProfile, updateEmployerInfo, updateJobSeekerInfo } from "../api/user";
 import { useAuth } from "../context/AuthContext";
+import { Container, Card, Form, Button, Spinner } from "react-bootstrap";
+import { FaEdit, FaSave } from "react-icons/fa";
 
 const Profile = () => {
-    const { roles } = useAuth(); // Pobranie roli użytkownika
+    const { roles } = useAuth();
     const [profile, setProfile] = useState<any>(null);
     const [formData, setFormData] = useState<any>({});
     const [isEditing, setIsEditing] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -21,6 +25,8 @@ const Profile = () => {
                 });
             } catch (error) {
                 console.error("Error fetching profile:", error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchProfile();
@@ -32,6 +38,7 @@ const Profile = () => {
 
     const handleSubmit = async () => {
         try {
+            setSaving(true);
             if (roles?.includes("ROLE_EMPLOYER")) {
                 await updateEmployerInfo(formData.companyName, formData.companyWebsite);
             } else if (roles?.includes("ROLE_JOB_SEEKER")) {
@@ -42,36 +49,84 @@ const Profile = () => {
             setProfile(updatedProfile);
         } catch (error) {
             console.error("Error updating profile:", error);
+        } finally {
+            setSaving(false);
         }
     };
 
-    if (!profile) return <p>Loading...</p>;
+    if (loading) {
+        return (
+            <Container className="mt-4 text-center">
+                <Spinner animation="border" />
+                <p>Loading profile...</p>
+            </Container>
+        );
+    }
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-            <h2 className="text-xl font-bold mb-4">Profile</h2>
-            {roles?.includes("ROLE_EMPLOYER") ? (
-                <>
-                    <p><strong>Email:</strong> {profile.email}</p>
-                    <p><strong>Company Name:</strong> {isEditing ? <input type="text" name="companyName" value={formData.companyName} onChange={handleChange} /> : profile.companyName}</p>
-                    <p><strong>Company Website:</strong> {isEditing ? <input type="text" name="companyWebsite" value={formData.companyWebsite} onChange={handleChange} /> : profile.companyWebsite}</p>
-                </>
-            ) : roles?.includes("ROLE_JOB_SEEKER") ? (
-                <>
-                    <p><strong>Email:</strong> {profile.email}</p>
-                    <p><strong>First Name:</strong> {isEditing ? <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} /> : profile.firstName}</p>
-                    <p><strong>Last Name:</strong> {isEditing ? <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} /> : profile.lastName}</p>
-                </>
-            ) : (
-                <p>Unknown role</p>
-            )}
-            <button 
-                className="bg-blue-500 rounded text-white mt-4 px-4 py-2"
-                onClick={() => isEditing ? handleSubmit() : setIsEditing(true)}
-            >
-                {isEditing ? "Save" : "Edit"}
-            </button>
-        </div>
+        <Container className="mt-4">
+            <Card className="shadow-sm">
+                <Card.Body>
+                    <Card.Title className="mb-4 text-center">User Profile</Card.Title>
+                    {roles?.includes("ROLE_EMPLOYER") ? (
+                        <>
+                            <p><strong>Email:</strong> {profile.email}</p>
+                            <Form.Group className="mb-3">
+                                <Form.Label><strong>Company name</strong></Form.Label>
+                                {isEditing ? (
+                                    <Form.Control type="text" name="companyName" value={formData.companyName} onChange={handleChange} />
+                                ) : (
+                                    <p className="form-control-plaintext">{profile.companyName}</p>
+                                )}
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label><strong>Company website</strong></Form.Label>
+                                {isEditing ? (
+                                    <Form.Control type="text" name="companyWebsite" value={formData.companyWebsite} onChange={handleChange} />
+                                ) : (
+                                    <p className="form-control-plaintext">{profile.companyWebsite}</p>
+                                )}
+                            </Form.Group>
+                        </>
+                    ) : roles?.includes("ROLE_JOB_SEEKER") ? (
+                        <>
+                            <p><strong>Email:</strong> {profile.email}</p>
+                            <Form.Group className="mb-3">
+                                <Form.Label><strong>First Name</strong></Form.Label>
+                                {isEditing ? (
+                                    <Form.Control type="text" name="firstName" value={formData.firstName} onChange={handleChange} />
+                                ) : (
+                                    <p className="form-control-plaintext">{profile.firstName}</p>
+                                )}
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label><strong>Last Name</strong></Form.Label>
+                                {isEditing ? (
+                                    <Form.Control type="text" name="lastName" value={formData.lastName} onChange={handleChange} />
+                                ) : (
+                                    <p className="form-control-plaintext">{profile.lastName}</p>
+                                )}
+                            </Form.Group>
+                        </>
+                    ) : (
+                        <p className="text-danger">Unknown role</p>
+                    )}
+
+                    <div className="text-center mt-4">
+                        {isEditing ? (
+                            <Button variant="success" onClick={handleSubmit} disabled={saving}>
+                                {saving ? <Spinner size="sm" animation="border" className="me-2" /> : <FaSave className="me-2" />}
+                                {saving ? "Saving..." : "Save"}
+                            </Button>
+                        ) : (
+                            <Button variant="primary" onClick={() => setIsEditing(true)}>
+                                <FaEdit className="me-2" /> Edit
+                            </Button>
+                        )}
+                    </div>
+                </Card.Body>
+            </Card>
+        </Container>
     );
 };
 

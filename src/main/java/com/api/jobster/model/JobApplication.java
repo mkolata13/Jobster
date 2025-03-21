@@ -37,6 +37,10 @@ public class JobApplication {
     @Column(name = "application_date")
     private LocalDateTime applicationDate;
 
+    @Lob
+    @Column(name = "cv")
+    private byte[] cv;
+
     public JobApplication() {
         this.applicationStatus = ApplicationStatus.PENDING;
         this.applicationDate = LocalDateTime.now();
@@ -46,8 +50,8 @@ public class JobApplication {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("id", id)
-                .append("jobPost", jobPost)
-                .append("jobSeeker", jobSeeker)
+                .append("jobPost", jobPost.toString())
+                .append("jobSeeker", jobSeeker.toString())
                 .append("applicationStatus", applicationStatus)
                 .append("applicationDate", applicationDate)
                 .toString();

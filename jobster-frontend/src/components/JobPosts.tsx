@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { getJobPosts } from "../api/jobPosts";
-import { Container, Row, Col, Spinner, Form } from "react-bootstrap";
+import { Container, Row, Col, Spinner, Form, Button } from "react-bootstrap";
 import JobPostCard from "./JobPostCard";
 import { JobPost } from "../types/JobPost";
 import { Helmet } from "react-helmet-async";
+import { ContractType } from "../enums/ContractType";
+import { ExperienceLevel } from "../enums/ExperienceLevel";
+import { JobType } from "../enums/JobType";
 
 export default function JobPosts() {
   const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [category, setCategory] = useState("");
+  const [contractCategory, setContractCategory] = useState<string>("");
+  const [experienceCategory, setExperienceCategory] = useState<string>("");
+  const [jobTypeCategory, setJobTypeCategory] = useState<string>("");
   const [filteredPosts, setFilteredPosts] = useState<JobPost[]>([]);
 
   useEffect(() => {
@@ -26,17 +31,41 @@ export default function JobPosts() {
   }, []);
 
   useEffect(() => {
-    const filtered = jobPosts.filter(
-      (job) =>
-        job.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        (category === "" || job.experienceLevel === category)
-    );
+    const filtered = jobPosts.filter((job) => {
+      const matchesSearchTerm =
+        job.title.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesContractType =
+        !contractCategory || job.contractType === contractCategory;
+      const matchesExperienceLevel =
+        !experienceCategory || job.experienceLevel === experienceCategory;
+      const matchesJobType =
+        !jobTypeCategory || job.jobType === jobTypeCategory;
+
+      return (
+        matchesSearchTerm &&
+        matchesContractType &&
+        matchesExperienceLevel &&
+        matchesJobType
+      );
+    });
     setFilteredPosts(filtered);
-  }, [searchTerm, category, jobPosts]);
+  }, [
+    searchTerm,
+    contractCategory,
+    experienceCategory,
+    jobTypeCategory,
+    jobPosts,
+  ]);
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setContractCategory("");
+    setExperienceCategory("");
+    setJobTypeCategory("");
+  };
 
   if (loading) return <Spinner animation="border" className="d-block mt-4 mx-auto" />;
-
-  const categories = Array.from(new Set(jobPosts.map((job) => job.experienceLevel)));
 
   return (
     <Container className="mt-4">
@@ -55,15 +84,52 @@ export default function JobPosts() {
             />
           </Col>
           <Col md={6}>
-            <Form.Select value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+            <Form.Select
+              value={contractCategory}
+              onChange={(e) => setContractCategory(e.target.value)}
+            >
+              <option value="">All Contract Types</option>
+              {Object.values(ContractType).map((contract) => (
+                <option key={contract} value={contract}>
+                  {contract}
+                </option>
               ))}
             </Form.Select>
           </Col>
         </Row>
+        <Row className="mt-3">
+          <Col md={6}>
+            <Form.Select
+              value={experienceCategory}
+              onChange={(e) => setExperienceCategory(e.target.value)}
+            >
+              <option value="">All Experience Levels</option>
+              {Object.values(ExperienceLevel).map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
+          <Col md={6}>
+            <Form.Select
+              value={jobTypeCategory}
+              onChange={(e) => setJobTypeCategory(e.target.value)}
+            >
+              <option value="">All Job Types</option>
+              {Object.values(JobType).map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </Form.Select>
+          </Col>
+        </Row>
+        <Button variant="secondary" className="mt-3" onClick={clearFilters}>
+          Clear Search
+        </Button>
       </Form>
+
       <Row>
         {filteredPosts.length > 0 ? (
           filteredPosts.map((job) => (
