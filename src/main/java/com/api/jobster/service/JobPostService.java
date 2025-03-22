@@ -88,14 +88,12 @@ public class JobPostService {
     }
 
     public List<JobPost> getAllEmployerJobPosts(Employer employer) {
-        Optional<JobPost> optionalJobPosts = jobPostRepository.findByEmployer(employer);
+        Optional<List<JobPost>> optionalJobPosts = jobPostRepository.findByEmployer(employer);
+        List<JobPost> jobPosts = new ArrayList<>();
         if (optionalJobPosts.isPresent()) {
-            List<JobPost> jobPosts = new ArrayList<>();
-            jobPosts.add(optionalJobPosts.get());
-            return jobPosts;
+            jobPosts = optionalJobPosts.get();
         }
-
-        return new ArrayList<>();
+        return jobPosts;
     }
 
     public List<JobPost> getJobPosts(String status) {

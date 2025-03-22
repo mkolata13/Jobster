@@ -28,6 +28,70 @@ public class UserController {
     private final EmployerService employerService;
     private final UserRepository userRepository;
 
+    @GetMapping("/")
+    public ResponseEntity<List<UserDto>> allUsers() {
+        List<User> users = userService.allUsers();
+        List<UserDto> userDtos = users.stream()
+                .map(user -> new UserDto(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getRole().name()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(userDtos);
+    }
+
+
+    @DeleteMapping("/")
+    public ResponseEntity<UserDto> deleteUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        User user = userRepository.findById(currentUser.getId()).orElse(null);
+        if (user != null) {
+            userService.deleteUser(user);
+            UserDto userDto = new UserDto(user.getId(), user.getEmail(), user.getRole().name());
+            return ResponseEntity.ok(userDto);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/employers")
+    public ResponseEntity<List<EmployerInfoDto>> getEmployers() {
+        List<Employer> employers = userService.allUsersByRole(Role.EMPLOYER).stream()
+                .map(user -> (Employer) user)
+                .toList();
+
+        List<EmployerInfoDto> employerInfoDtos = employers.stream()
+                .map(employer -> new EmployerInfoDto(
+                        employer.getId(),
+                        employer.getEmail(),
+                        employer.getCompanyName(),
+                        employer.getCompanyWebsite(),
+                        employer.getRole().name()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(employerInfoDtos);
+    }
+
+    @GetMapping("/job-seekers")
+    public ResponseEntity<List<JobSeekerInfoDto>> getJobSeekers() {
+        List<JobSeeker> jobSeekers = userService.allUsersByRole(Role.JOB_SEEKER).stream()
+                .map(user -> (JobSeeker) user)
+                .toList();
+
+        List<JobSeekerInfoDto> jobSeekerInfoDtos = jobSeekers.stream()
+                .map(jobSeeker -> new JobSeekerInfoDto(
+                        jobSeeker.getId(),
+                        jobSeeker.getEmail(),
+                        jobSeeker.getFirstName(),
+                        jobSeeker.getLastName(),
+                        jobSeeker.getRole().name()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(jobSeekerInfoDtos);
+    }
+
     @GetMapping("/me")
     public ResponseEntity<?> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,68 +135,5 @@ public class UserController {
         JobSeekerInfoDto jobSeekerInfoDto = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
                 jobSeeker.getLastName(), jobSeeker.getRole().name());
         return ResponseEntity.ok(jobSeekerInfoDto);
-    }
-
-    @GetMapping("/employers")
-    public ResponseEntity<List<EmployerInfoDto>> getEmployers() {
-        List<Employer> employers = userService.allUsersByRole(Role.EMPLOYER).stream()
-                .map(user -> (Employer) user)
-                .toList();
-
-        List<EmployerInfoDto> employerInfoDtos = employers.stream()
-                .map(employer -> new EmployerInfoDto(
-                        employer.getId(),
-                        employer.getEmail(),
-                        employer.getCompanyName(),
-                        employer.getCompanyWebsite(),
-                        employer.getRole().name()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(employerInfoDtos);
-    }
-
-    @GetMapping("/job-seekers")
-    public ResponseEntity<List<JobSeekerInfoDto>> getJobSeekers() {
-        List<JobSeeker> jobSeekers = userService.allUsersByRole(Role.JOB_SEEKER).stream()
-                .map(user -> (JobSeeker) user)
-                .toList();
-
-        List<JobSeekerInfoDto> jobSeekerInfoDtos = jobSeekers.stream()
-                .map(jobSeeker -> new JobSeekerInfoDto(
-                        jobSeeker.getId(),
-                        jobSeeker.getEmail(),
-                        jobSeeker.getFirstName(),
-                        jobSeeker.getLastName(),
-                        jobSeeker.getRole().name()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(jobSeekerInfoDtos);
-    }
-
-    @GetMapping("/")
-    public ResponseEntity<List<UserDto>> allUsers() {
-        List<User> users = userService.allUsers();
-        List<UserDto> userDtos = users.stream()
-                .map(user -> new UserDto(
-                        user.getId(),
-                        user.getEmail(),
-                        user.getRole().name()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(userDtos);
-    }
-
-    @DeleteMapping("/delete-account")
-    public ResponseEntity<UserDto> deleteUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        User user = userRepository.findById(currentUser.getId()).orElse(null);
-        if (user != null) {
-            userService.deleteUser(user);
-            UserDto userDto = new UserDto(user.getId(), user.getEmail(), user.getRole().name());
-            return ResponseEntity.ok(userDto);
-        }
-
-        return ResponseEntity.notFound().build();
     }
 }

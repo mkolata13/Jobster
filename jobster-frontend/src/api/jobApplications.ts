@@ -11,9 +11,9 @@ export const getUserJobApplications = async () => {
     }
   };
   
-export const changeApplicationStatus = async (applicationId: string, status: string) => {
+export const changeApplicationStatus = async (applicationId: string, status: any) => {
     try {
-      const response = await apiClient.put(`${API_URL}/job-applications/${applicationId}`, status);
+      const response = await apiClient.patch(`${API_URL}/job-applications/${applicationId}`, {status});
       return response.data;
     } catch (error) {
       console.error("Error changing application status:", error);

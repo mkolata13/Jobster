@@ -54,7 +54,7 @@ export default function JobsterNavbar() {
                 <span className="me-2">
                   {getUsernameFromJwt()} ({getRoleFromJwt()})
                 </span>
-                <Nav.Link as="button" className="btn btn-link" onClick={logout}>
+                <Nav.Link as={Link} to="/" className="btn btn-link" onClick={logout}>
                   Logout
                 </Nav.Link>
               </>

@@ -50,6 +50,23 @@ public class JobPostController {
         return ResponseEntity.ok(jobPostDto);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<JobPostDto>> myJobPosts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        Employer employer = (Employer) currentUser;
+        List<JobPost> jobPosts = jobPostService.getAllEmployerJobPosts(employer);
+        if (jobPosts.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        List<JobPostDto> jobPostDtos = new ArrayList<>();
+        for (JobPost jobPost : jobPosts) {
+            JobPostDto jobPostDto = convertToJobPostDto(jobPost);
+            jobPostDtos.add(jobPostDto);
+        }
+
+        return ResponseEntity.ok(jobPostDtos);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<JobPostDto> getJobPost(@PathVariable Long id) {

@@ -51,13 +51,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/job-posts")
                         .hasRole(Role.EMPLOYER.name())
 
-                        .requestMatchers(HttpMethod.POST, "/job-applications/{id}", "/job-posts/{id}")
+                        .requestMatchers(HttpMethod.POST, "/job-posts/{id}")
                         .hasRole(Role.JOB_SEEKER.name())
 
-                        .requestMatchers(HttpMethod.GET, "/job-posts/{id}/applications")
+                        .requestMatchers(HttpMethod.GET, "/job-posts/my", "/job-posts/{id}/applications")
                         .hasRole(Role.EMPLOYER.name())
 
                         .requestMatchers(HttpMethod.PUT, "/job-posts/{id}")
+                        .hasRole(Role.EMPLOYER.name())
+
+                        .requestMatchers(HttpMethod.PATCH, "api/job-applications/{id}")
                         .hasRole(Role.EMPLOYER.name())
 
                         .anyRequest().authenticated()

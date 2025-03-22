@@ -11,6 +11,16 @@ export const getJobPosts = async () => {
     }
 }
 
+export const getMyJobPosts = async () => {
+    try {
+        const response = await apiClient.get(`${API_URL}/job-posts/my`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching job posts:", error);
+        throw error;
+    }
+}
+
 export const getJobPost = async (id: number) => {
     const response = await apiClient.get(`${API_URL}/job-posts/${id}`);
     return response.data;

@@ -54,7 +54,7 @@ public class JobApplicationService {
             throw new RuntimeException("Application status is final.");
         }
 
-        switch (newStatus.toUpperCase()) {
+        switch (newStatus) {
             case "ACCEPTED" -> jobApplication.setApplicationStatus(ApplicationStatus.ACCEPTED);
             case "REJECTED" -> jobApplication.setApplicationStatus(ApplicationStatus.REJECTED);
             default -> throw new RuntimeException("Invalid status provided");

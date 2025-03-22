@@ -13,6 +13,7 @@ import VerifyAccount from "./components/Verification";
 import CreateJobPost from "./components/CreateJobPost";
 import Profile from "./components/Profile";
 import MyApplications from "./components/MyApplications";
+import EmployerJobPost from "./components/EmployerJobPosts";
 
 function App() {
 
@@ -32,6 +33,7 @@ function App() {
               <Route path="/job-posts/:id" element={<JobPostDetails />} />
               <Route path="/my-applications" element={<MyApplications />} />
               <Route path="/create-post" element={<CreateJobPost />} />
+              <Route path="/my-posts" element={<EmployerJobPost />} />
             </Routes>
           </main>
         </div>

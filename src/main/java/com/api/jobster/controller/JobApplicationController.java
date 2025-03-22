@@ -25,12 +25,12 @@ public class JobApplicationController {
     @PatchMapping("/{id}")
     public ResponseEntity<JobApplicationDto> updateStatus(
             @PathVariable Long id,
-            @RequestBody JobApplicationStatusDto status
+            @RequestBody JobApplicationStatusDto input
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         Employer employer = (Employer) currentUser;
-        JobApplication jobApplication = jobApplicationService.updateStatus(employer.getId(), id, status.status());
+        JobApplication jobApplication = jobApplicationService.updateStatus(employer.getId(), id, input.status());
         JobApplicationDto jobApplicationDto = jobApplicationToDto(jobApplication);
 
         return ResponseEntity.ok(jobApplicationDto);
