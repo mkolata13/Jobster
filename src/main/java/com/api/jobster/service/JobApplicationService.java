@@ -36,6 +36,7 @@ public class JobApplicationService {
         JobApplication jobApplication = new JobApplication();
         jobApplication.setJobSeeker(jobSeeker);
         jobApplication.setJobPost(jobPost);
+        jobApplication.setCv(jobSeeker.getCv());
 
         return jobApplicationRepository.save(jobApplication);
     }
@@ -53,7 +54,7 @@ public class JobApplicationService {
             throw new RuntimeException("Application status is final.");
         }
 
-        switch (newStatus.toUpperCase()) {
+        switch (newStatus) {
             case "ACCEPTED" -> jobApplication.setApplicationStatus(ApplicationStatus.ACCEPTED);
             case "REJECTED" -> jobApplication.setApplicationStatus(ApplicationStatus.REJECTED);
             default -> throw new RuntimeException("Invalid status provided");

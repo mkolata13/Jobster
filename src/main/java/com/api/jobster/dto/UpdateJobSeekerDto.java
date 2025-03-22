@@ -6,6 +6,5 @@ import java.io.Serializable;
 
 public record UpdateJobSeekerDto(
         @Min(4) @Max(25) String firstName,
-        @Min(4) @Max(25) String lastName,
-        byte[] cv
+        @Min(4) @Max(25) String lastName
 ) implements Serializable {}

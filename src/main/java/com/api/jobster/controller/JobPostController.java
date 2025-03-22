@@ -2,7 +2,6 @@ package com.api.jobster.controller;
 
 import com.api.jobster.dto.CreateJobPostDto;
 import com.api.jobster.dto.JobPostDto;
-import com.api.jobster.dto.SimpleJobApplicationDto;
 import com.api.jobster.model.Employer;
 import com.api.jobster.model.JobApplication;
 import com.api.jobster.dto.JobApplicationDto;
@@ -35,21 +34,35 @@ public class JobPostController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
-        List<JobPostDto> jobPostDtos = new ArrayList<>();
-        for (JobPost jobPost : jobPosts) {
-            jobPostDtos.add(convertToJobPostDto(jobPost));
-        }
+        List<JobPostDto> jobPostDtos = jobPosts.stream()
+                .map(this::convertToJobPostDto)
+                .toList();
 
         return ResponseEntity.ok(jobPostDtos);
     }
 
-    @GetMapping("/{status}")
-    public ResponseEntity<List<JobPostDto>> getActiveJobPosts(@PathVariable String status) {
-        List<JobPost> jobPosts = jobPostService.getJobPosts(status);
+    @PostMapping("/")
+    public ResponseEntity<JobPostDto> createJobPost(@RequestBody CreateJobPostDto createJobPostDto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        JobPost jobPost = jobPostService.createJobPost(currentUser.getId(), createJobPostDto);
+        JobPostDto jobPostDto = convertToJobPostDto(jobPost);
+        return ResponseEntity.ok(jobPostDto);
+    }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<JobPostDto>> myJobPosts() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        Employer employer = (Employer) currentUser;
+        List<JobPost> jobPosts = jobPostService.getAllEmployerJobPosts(employer);
+        if (jobPosts.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
         List<JobPostDto> jobPostDtos = new ArrayList<>();
         for (JobPost jobPost : jobPosts) {
-            jobPostDtos.add(convertToJobPostDto(jobPost));
+            JobPostDto jobPostDto = convertToJobPostDto(jobPost);
+            jobPostDtos.add(jobPostDto);
         }
 
         return ResponseEntity.ok(jobPostDtos);
@@ -63,16 +76,17 @@ public class JobPostController {
         return ResponseEntity.ok(jobPostDto);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<JobPostDto> createJobPost(@RequestBody CreateJobPostDto createJobPostDto) {
+    @PostMapping("/{id}")
+    public ResponseEntity<JobApplicationDto> applyForJobPost(@PathVariable Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
-        JobPost jobPost = jobPostService.createJobPost(currentUser.getId(), createJobPostDto);
-        JobPostDto jobPostDto = convertToJobPostDto(jobPost);
-        return ResponseEntity.ok(jobPostDto);
+        JobApplication jobApplication = jobApplicationService.createJobApplication(id, currentUser.getId());
+        JobApplicationDto result = jobApplicationToDto(jobApplication);
+
+        return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/{id}/update")
+    @PutMapping("/{id}")
     public ResponseEntity<JobPostDto> updateJobPost(@PathVariable Long id, @RequestBody JobPostDto input) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -81,27 +95,26 @@ public class JobPostController {
         return ResponseEntity.ok(jobPostDto);
     }
 
-    @PostMapping("/{id}/apply")
-    public ResponseEntity<JobApplicationDto> applyForJobPost(@PathVariable Long id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        JobApplication jobApplication = jobApplicationService.createJobApplication(id, currentUser.getId());
-        JobApplicationDto result = new JobApplicationDto(jobApplication.getId(), jobApplication.getJobPost(),
-                jobApplication.getJobSeeker(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<JobPostDto>> getActiveJobPosts(@PathVariable String status) {
+        List<JobPost> jobPosts = jobPostService.getJobPosts(status);
 
-        return ResponseEntity.ok(result);
+        List<JobPostDto> jobPostDtos = jobPosts.stream()
+                .map(this::convertToJobPostDto)
+                .toList();
+
+        return ResponseEntity.ok(jobPostDtos);
     }
 
     @GetMapping("/{id}/applications")
-    public ResponseEntity<List<SimpleJobApplicationDto>> getApplicationsForJobPost(@PathVariable Long id) {
+    public ResponseEntity<List<JobApplicationDto>> getApplicationsForJobPost(@PathVariable Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         Employer employer = (Employer) currentUser;
         List<JobApplication> jobApplications = jobPostService.getAllJobApplications(id, employer.getId());
-        List<SimpleJobApplicationDto> jobApplicationDtos = new ArrayList<>();
+        List<JobApplicationDto> jobApplicationDtos = new ArrayList<>();
         for (JobApplication jobApplication : jobApplications) {
-            SimpleJobApplicationDto jobApplicationDto = new SimpleJobApplicationDto(jobApplication.getId(),
-                    jobApplication.getJobSeeker(), jobApplication.getApplicationStatus(), jobApplication.getApplicationDate());
+            JobApplicationDto jobApplicationDto = jobApplicationToDto(jobApplication);
             jobApplicationDtos.add(jobApplicationDto);
         }
 
@@ -125,6 +138,25 @@ public class JobPostController {
                 jobPost.getContractType().name(),
                 jobPost.isRemote(),
                 jobPost.getCreationDate()
+        );
+    }
+
+    public static JobApplicationDto jobApplicationToDto(JobApplication jobApplication) {
+        if (jobApplication == null) {
+            return null;
+        }
+
+        return new JobApplicationDto(
+                jobApplication.getId(),
+                jobApplication.getJobPost().getId(),
+                jobApplication.getJobSeeker().getId(),
+                jobApplication.getApplicationStatus(),
+                jobApplication.getJobPost().getEmployer().getCompanyName(),
+                jobApplication.getJobPost().getTitle(),
+                jobApplication.getJobPost().getJobTitle(),
+                jobApplication.getJobSeeker().getFirstName(),
+                jobApplication.getJobSeeker().getLastName(),
+                jobApplication.getApplicationDate()
         );
     }
 }

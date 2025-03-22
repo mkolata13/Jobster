@@ -10,7 +10,15 @@ export default function JobsterNavbar() {
   return (
     <Navbar bg="light" expand="lg" className="shadow-sm">
       <Container>
-        <Navbar.Brand as={Link} to="/">Jobster</Navbar.Brand>
+        {roles?.includes("ROLE_EMPLOYER") ? (
+          <>
+            <Navbar.Brand as={Link} to="/">Jobster for employers</Navbar.Brand>
+          </>
+        ) : (
+          <>
+            <Navbar.Brand as={Link} to="/">Jobster</Navbar.Brand>
+          </>
+        )}
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
@@ -29,10 +37,10 @@ export default function JobsterNavbar() {
             )}
             {isLoggedIn && roles?.includes("ROLE_EMPLOYER") && (
               <>
-                <NavItem as={Link} to="/" className="nav-link">
+                <NavItem as={Link} to="/create-post" className="nav-link">
                   Create Job Post
                 </NavItem>
-                <NavItem as={Link} to="/my-applications" className="nav-link">
+                <NavItem as={Link} to="/my-posts" className="nav-link">
                   My Job Posts
                 </NavItem>
                 <NavItem as={Link} to="profile" className="nav-link">
@@ -46,7 +54,7 @@ export default function JobsterNavbar() {
                 <span className="me-2">
                   {getUsernameFromJwt()} ({getRoleFromJwt()})
                 </span>
-                <Nav.Link as="button" className="btn btn-link" onClick={logout}>
+                <Nav.Link as={Link} to="/" className="btn btn-link" onClick={logout}>
                   Logout
                 </Nav.Link>
               </>

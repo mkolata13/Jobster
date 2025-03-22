@@ -17,7 +17,7 @@ export const resendVerificationCode = async (email: string) => {
     return response.data;
 }
 
-export const verifyUser = async (email: string, code: string) => {
-    const response = await apiClient.post(`${API_URL}/auth/verify`, { email, code });
+export const verifyUser = async (email: string, verificationCode: string) => {
+    const response = await apiClient.post(`${API_URL}/auth/verify`, { email, verificationCode });
     return response.data;
 }

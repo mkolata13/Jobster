@@ -22,9 +22,6 @@ public class JobSeeker extends User {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "full_name")
-    private String fullName = firstName + " " + lastName;
-
     @Lob
     @Column(name = "cv")
     private byte[] cv;
@@ -42,7 +39,6 @@ public class JobSeeker extends User {
         return new ToStringBuilder(this)
                 .append("firstName", firstName)
                 .append("lastName", lastName)
-                .append("fullName", fullName)
                 .append("cv", cv)
                 .toString();
     }
@@ -53,11 +49,11 @@ public class JobSeeker extends User {
 
         if (!(o instanceof JobSeeker jobSeeker)) return false;
 
-        return new EqualsBuilder().append(firstName, jobSeeker.firstName).append(lastName, jobSeeker.lastName).append(fullName, jobSeeker.fullName).append(cv, jobSeeker.cv).append(jobApplications, jobSeeker.jobApplications).isEquals();
+        return new EqualsBuilder().append(firstName, jobSeeker.firstName).append(lastName, jobSeeker.lastName).append(cv, jobSeeker.cv).append(jobApplications, jobSeeker.jobApplications).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(firstName).append(lastName).append(fullName).append(cv).append(jobApplications).toHashCode();
+        return new HashCodeBuilder(17, 37).append(firstName).append(lastName).append(cv).append(jobApplications).toHashCode();
     }
 }

@@ -28,50 +28,32 @@ public class UserController {
     private final EmployerService employerService;
     private final UserRepository userRepository;
 
-    @GetMapping("/me")
-    public ResponseEntity<?> authenticatedUser() {
+    @GetMapping("/")
+    public ResponseEntity<List<UserDto>> allUsers() {
+        List<User> users = userService.allUsers();
+        List<UserDto> userDtos = users.stream()
+                .map(user -> new UserDto(
+                        user.getId(),
+                        user.getEmail(),
+                        user.getRole().name()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(userDtos);
+    }
+
+
+    @DeleteMapping("/")
+    public ResponseEntity<UserDto> deleteUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         User user = userRepository.findById(currentUser.getId()).orElse(null);
-
-        if (user == null) {
-            return ResponseEntity.notFound().build();
+        if (user != null) {
+            userService.deleteUser(user);
+            UserDto userDto = new UserDto(user.getId(), user.getEmail(), user.getRole().name());
+            return ResponseEntity.ok(userDto);
         }
 
-        if (user.getRole() == Role.EMPLOYER) {
-            Employer employer = (Employer) user;
-            EmployerInfoDto output = new EmployerInfoDto(employer.getId(), employer.getEmail(), employer.getCompanyName(),
-                    employer.getCompanyWebsite(), employer.getJobPosts().toString(), employer.getRole().name());
-            return ResponseEntity.ok(output);
-        } else if (user.getRole() == Role.JOB_SEEKER) {
-            JobSeeker jobSeeker = (JobSeeker) user;
-            JobSeekerInfoDto output = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
-                    jobSeeker.getLastName(), jobSeeker.getCv(), jobSeeker.getJobApplications().toString(),
-                    jobSeeker.getRole().name());
-            return ResponseEntity.ok(output);
-        }
-
-        return ResponseEntity.ok(user);
-    }
-
-    @PatchMapping("/update-employer")
-    public ResponseEntity<EmployerInfoDto> updateEmployerInfo(@RequestBody UpdateEmployerDto input) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        Employer employer = employerService.updateEmployerInfo(currentUser.getId(), input);
-        EmployerInfoDto employerInfoDto = new EmployerInfoDto(employer.getId(), employer.getEmail(), employer.getCompanyName(),
-                employer.getCompanyWebsite(), employer.getJobPosts().toString(), employer.getRole().name());
-        return ResponseEntity.ok(employerInfoDto);
-    }
-
-    @PatchMapping("/update-job-seeker")
-    public ResponseEntity<JobSeekerInfoDto> updateJobSeekerInfo(@RequestBody UpdateJobSeekerDto input) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
-        JobSeeker jobSeeker = jobSeekerService.updateJobSeekerInfo(currentUser.getId(), input);
-        JobSeekerInfoDto jobSeekerInfoDto = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
-                jobSeeker.getLastName(), jobSeeker.getCv(), jobSeeker.getJobApplications().toString(), jobSeeker.getRole().name());
-        return ResponseEntity.ok(jobSeekerInfoDto);
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/employers")
@@ -86,7 +68,6 @@ public class UserController {
                         employer.getEmail(),
                         employer.getCompanyName(),
                         employer.getCompanyWebsite(),
-                        employer.getJobPosts().toString(),
                         employer.getRole().name()))
                 .collect(Collectors.toList());
 
@@ -105,38 +86,54 @@ public class UserController {
                         jobSeeker.getEmail(),
                         jobSeeker.getFirstName(),
                         jobSeeker.getLastName(),
-                        jobSeeker.getCv(),
-                        jobSeeker.getJobApplications().toString(),
                         jobSeeker.getRole().name()))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(jobSeekerInfoDtos);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<UserDto>> allUsers() {
-        List<User> users = userService.allUsers();
-        List<UserDto> userDtos = users.stream()
-                .map(user -> new UserDto(
-                        user.getId(),
-                        user.getEmail(),
-                        user.getRole().name()))
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(userDtos);
-    }
-
-    @DeleteMapping("/delete-account")
-    public ResponseEntity<UserDto> deleteUser() {
+    @GetMapping("/me")
+    public ResponseEntity<?> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         User user = userRepository.findById(currentUser.getId()).orElse(null);
-        if (user != null) {
-            userService.deleteUser(user);
-            UserDto userDto = new UserDto(user.getId(), user.getEmail(), user.getRole().name());
-            return ResponseEntity.ok(userDto);
+
+        if (user == null) {
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.notFound().build();
+        if (user.getRole() == Role.EMPLOYER) {
+            Employer employer = (Employer) user;
+            EmployerInfoDto output = new EmployerInfoDto(employer.getId(), employer.getEmail(), employer.getCompanyName(),
+                    employer.getCompanyWebsite(), employer.getRole().name());
+            return ResponseEntity.ok(output);
+        } else if (user.getRole() == Role.JOB_SEEKER) {
+            JobSeeker jobSeeker = (JobSeeker) user;
+            JobSeekerInfoDto output = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
+                    jobSeeker.getLastName(), jobSeeker.getRole().name());
+            return ResponseEntity.ok(output);
+        }
+
+        return ResponseEntity.ok(user);
+    }
+
+    @PatchMapping("/update-employer")
+    public ResponseEntity<EmployerInfoDto> updateEmployerInfo(@RequestBody UpdateEmployerDto input) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        Employer employer = employerService.updateEmployerInfo(currentUser.getId(), input);
+        EmployerInfoDto employerInfoDto = new EmployerInfoDto(employer.getId(), employer.getEmail(), employer.getCompanyName(),
+                employer.getCompanyWebsite(), employer.getRole().name());
+        return ResponseEntity.ok(employerInfoDto);
+    }
+
+    @PatchMapping("/update-job-seeker")
+    public ResponseEntity<JobSeekerInfoDto> updateJobSeekerInfo(@RequestBody UpdateJobSeekerDto input) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+        JobSeeker jobSeeker = jobSeekerService.updateJobSeekerInfo(currentUser.getId(), input);
+        JobSeekerInfoDto jobSeekerInfoDto = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
+                jobSeeker.getLastName(), jobSeeker.getRole().name());
+        return ResponseEntity.ok(jobSeekerInfoDto);
     }
 }

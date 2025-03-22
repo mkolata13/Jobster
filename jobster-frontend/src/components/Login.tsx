@@ -24,7 +24,8 @@ const Login = () => {
         const data = await response.json();
         localStorage.setItem('jwt', data.token);
         toast.success('Login successful!');
-        navigate('/dashboard');  // Przekierowanie na dashboard
+        navigate('/');
+        window.location.reload();
       } else {
         const data = await response.json();
         toast.error(data.message || 'Login failed!');
