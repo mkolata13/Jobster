@@ -24,4 +24,6 @@ jobs:
           cache: maven
 
       - name: Build Application
-        run: mvn clean compile
+        run: |
+          cd backend
+          mvn clean compile package

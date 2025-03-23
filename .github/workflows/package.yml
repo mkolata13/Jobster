@@ -23,10 +23,12 @@ jobs:
           cache: maven
 
       - name: Package Application
-        run: mvn package
+        run: |
+          cd backend
+          mvn package
 
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
         with:
           name: application-jar
-          path: target/*.jar
+          path: backend/target/*.jar

@@ -40,16 +40,18 @@ jobs:
 
       - name: Create .env file from GitHub Secrets
         run: |
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
-          echo "SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL }}" >> .env
-          echo "APP_PASSWORD=${{ secrets.APP_PASSWORD }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> backend/.env
+          echo "SUPPORT_EMAIL=${{ secrets.SUPPORT_EMAIL }}" >> backend/.env
+          echo "APP_PASSWORD=${{ secrets.APP_PASSWORD }}" >> backend/.env
 
       - name: Run Tests
-        run: mvn test
+        run: |
+          cd backend
+          mvn test
 
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: target/surefire-reports
+          path: backend/target/surefire-reports
