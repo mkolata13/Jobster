@@ -3,6 +3,7 @@ import { Button, Card, ListGroup, Spinner, Alert, Badge, Row, Col, Container } f
 import { getMyJobPosts, getJobPostApplications } from "../api/jobPosts";
 import { ApplicationStatus } from "../enums/ApplicationStatus";
 import { changeApplicationStatus } from "../api/jobApplications";
+import { downloadCv } from "../api/user";
 import { JobPost } from "../types/JobPost";
 
 interface JobApplication {
@@ -10,6 +11,7 @@ interface JobApplication {
     jobSeekerId: number;
     firstName: string;
     lastName: string;
+    cvPath: string;
     applicationStatus: ApplicationStatus;
 }
 
@@ -60,6 +62,23 @@ const EmployerJobPosts = () => {
         }
     };
 
+    const handleDownloadCv = async (cvPath: string, applicantName: string) => {
+        try {
+            const fileData = await downloadCv(cvPath);
+            const blob = new Blob([fileData], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `${applicantName}_CV.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            setError("Failed to download CV.");
+        }
+    };
+
     return (
         <Container className="mt-4">
             <h2>My Job Posts</h2>
@@ -106,25 +125,35 @@ const EmployerJobPosts = () => {
                                             {app.applicationStatus.toString()}
                                         </Badge>
                                     </div>
-                                    {app.applicationStatus === ApplicationStatus.PENDING && (
-                                        <div className="ms-auto">
-                                            <Button
-                                                variant="success"
-                                                size="sm"
-                                                className="me-2"
-                                                onClick={() => updateApplicationStatus(app.id, ApplicationStatus.ACCEPTED)}
-                                            >
-                                                Accept
-                                            </Button>
-                                            <Button
-                                                variant="danger"
-                                                size="sm"
-                                                onClick={() => updateApplicationStatus(app.id, ApplicationStatus.REJECTED)}
-                                            >
-                                                Reject
-                                            </Button>
-                                        </div>
-                                    )}
+                                    <div className="ms-auto">
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            className="me-2"
+                                            onClick={() => handleDownloadCv(app.cvPath, `${app.firstName}_${app.lastName}`)}
+                                        >
+                                            Download CV
+                                        </Button>
+                                        {app.applicationStatus === ApplicationStatus.PENDING && (
+                                            <>
+                                                <Button
+                                                    variant="success"
+                                                    size="sm"
+                                                    className="me-2"
+                                                    onClick={() => updateApplicationStatus(app.id, ApplicationStatus.ACCEPTED)}
+                                                >
+                                                    Accept
+                                                </Button>
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => updateApplicationStatus(app.id, ApplicationStatus.REJECTED)}
+                                                >
+                                                    Reject
+                                                </Button>
+                                            </>
+                                        )}
+                                    </div>
                                 </ListGroup.Item>
                             ))}
                         </ListGroup>

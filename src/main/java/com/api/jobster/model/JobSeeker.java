@@ -22,9 +22,8 @@ public class JobSeeker extends User {
     @Column(name = "last_name")
     private String lastName;
 
-    @Lob
     @Column(name = "cv")
-    private byte[] cv;
+    private String cvPath;
 
     @OneToMany(mappedBy = "jobSeeker", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -39,7 +38,7 @@ public class JobSeeker extends User {
         return new ToStringBuilder(this)
                 .append("firstName", firstName)
                 .append("lastName", lastName)
-                .append("cv", cv)
+                .append("cv", cvPath)
                 .toString();
     }
 
@@ -49,11 +48,11 @@ public class JobSeeker extends User {
 
         if (!(o instanceof JobSeeker jobSeeker)) return false;
 
-        return new EqualsBuilder().append(firstName, jobSeeker.firstName).append(lastName, jobSeeker.lastName).append(cv, jobSeeker.cv).append(jobApplications, jobSeeker.jobApplications).isEquals();
+        return new EqualsBuilder().append(firstName, jobSeeker.firstName).append(lastName, jobSeeker.lastName).append(cvPath, jobSeeker.cvPath).append(jobApplications, jobSeeker.jobApplications).isEquals();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(firstName).append(lastName).append(cv).append(jobApplications).toHashCode();
+        return new HashCodeBuilder(17, 37).append(firstName).append(lastName).append(cvPath).append(jobApplications).toHashCode();
     }
 }

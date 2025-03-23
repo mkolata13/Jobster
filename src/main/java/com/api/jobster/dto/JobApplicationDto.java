@@ -21,5 +21,6 @@ public record JobApplicationDto(
         String jobTitle,
         String firstName,
         String lastName,
+        String cvPath,
         LocalDateTime applicationDate) implements Serializable {
 }

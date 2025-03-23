@@ -11,11 +11,15 @@ import com.api.jobster.service.EmployerService;
 import com.api.jobster.service.JobSeekerService;
 import com.api.jobster.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -135,5 +139,30 @@ public class UserController {
         JobSeekerInfoDto jobSeekerInfoDto = new JobSeekerInfoDto(jobSeeker.getId(), jobSeeker.getEmail(), jobSeeker.getFirstName(),
                 jobSeeker.getLastName(), jobSeeker.getRole().name());
         return ResponseEntity.ok(jobSeekerInfoDto);
+    }
+
+    @PostMapping(path = "/upload-cv", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<String> uploadCv(@RequestParam("file") MultipartFile file) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User currentUser = (User) authentication.getPrincipal();
+            String filename = jobSeekerService.saveFile(currentUser.getId(), file, "pdf");
+            return ResponseEntity.ok("PDF uploaded successfully " + filename);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/download-cv/{filename}")
+    public ResponseEntity<byte[]> downloadCv(@PathVariable String filename) {
+        try {
+            byte[] fileData = jobSeekerService.getFile(filename);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(fileData);
+        } catch (IOException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

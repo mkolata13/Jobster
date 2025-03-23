@@ -8,3 +8,8 @@ services:
       - 'POSTGRES_USER=user'
     ports:
       - '5435:5432'
+    volumes:
+      - app-data:/app/uploads
+
+volumes:
+  app-data:
