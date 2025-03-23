@@ -3,17 +3,57 @@ package com.api.jobster.service;
 import com.api.jobster.dto.UpdateJobSeekerDto;
 import com.api.jobster.model.JobSeeker;
 import com.api.jobster.repository.JobSeekerRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
-@AllArgsConstructor
 @Service
 public class JobSeekerService {
     JobSeekerRepository jobSeekerRepository;
+    private final Path rootLocation = Paths.get("uploads");
+
+    public JobSeekerService(JobSeekerRepository jobSeekerRepository) throws IOException {
+        this.jobSeekerRepository = jobSeekerRepository;
+        if (!Files.exists(rootLocation)) {
+            Files.createDirectory(rootLocation);
+        }
+    }
+
+    public String saveFile(Long jobSeekerId, MultipartFile file, String fileType) throws IOException {
+        JobSeeker jobSeeker = jobSeekerRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new RuntimeException("JobSeeker not found"));
+
+        String extension = getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
+        String filename = UUID.randomUUID() + "." + extension;
+
+        if (fileType.equalsIgnoreCase("pdf") && !"pdf".equalsIgnoreCase(extension)) {
+            throw new IOException("Invalid PDF file type.");
+        }
+
+        Files.copy(file.getInputStream(), this.rootLocation.resolve(filename));
+        jobSeeker.setCvPath(filename);
+        jobSeekerRepository.save(jobSeeker);
+        return filename;
+    }
+
+    public byte[] getFile(Long jobSeekerId) throws IOException {
+        JobSeeker jobSeeker = jobSeekerRepository.findById(jobSeekerId)
+                .orElseThrow(() -> new RuntimeException("JobSeeker not found"));
+
+        Path filePath = this.rootLocation.resolve(jobSeeker.getCvPath());
+        return Files.readAllBytes(filePath);
+    }
+
+    private String getFileExtension(String filename) {
+        return filename.substring(filename.lastIndexOf(".") + 1);
+    }
 
     public JobSeeker updateJobSeekerInfo(Long jobSeekerId, UpdateJobSeekerDto dto) {
         JobSeeker jobSeeker = jobSeekerRepository.findById(jobSeekerId)
@@ -23,16 +63,5 @@ public class JobSeekerService {
         jobSeeker.setLastName(dto.lastName());
 
         return jobSeekerRepository.save(jobSeeker);
-    }
-
-    public JobSeeker uploadCv(Long jobSeekerId, MultipartFile file) throws IOException {
-        Optional<JobSeeker> optionalJobSeeker = jobSeekerRepository.findById(jobSeekerId);
-        if (!optionalJobSeeker.isPresent()) {
-            throw new RuntimeException("JobSeeker not found");
-        } else {
-            JobSeeker jobSeeker1 = optionalJobSeeker.get();
-            jobSeeker1.setCv(file.getBytes());
-            return jobSeekerRepository.save(jobSeeker1);
-        }
     }
 }

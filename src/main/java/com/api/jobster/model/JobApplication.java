@@ -37,9 +37,8 @@ public class JobApplication {
     @Column(name = "application_date")
     private LocalDateTime applicationDate;
 
-    @Lob
     @Column(name = "cv")
-    private byte[] cv;
+    private String cvPath;
 
     public JobApplication() {
         this.applicationStatus = ApplicationStatus.PENDING;
