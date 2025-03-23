@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,11 +42,8 @@ public class JobSeekerService {
         return filename;
     }
 
-    public byte[] getFile(Long jobSeekerId) throws IOException {
-        JobSeeker jobSeeker = jobSeekerRepository.findById(jobSeekerId)
-                .orElseThrow(() -> new RuntimeException("JobSeeker not found"));
-
-        Path filePath = this.rootLocation.resolve(jobSeeker.getCvPath());
+    public byte[] getFile(String filename) throws IOException {
+        Path filePath = this.rootLocation.resolve(filename);
         return Files.readAllBytes(filePath);
     }
 

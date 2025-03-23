@@ -11,7 +11,6 @@ import com.api.jobster.service.EmployerService;
 import com.api.jobster.service.JobSeekerService;
 import com.api.jobster.service.UserService;
 import lombok.AllArgsConstructor;
-import lombok.Generated;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -154,12 +153,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/download-cv")
-    public ResponseEntity<byte[]> downloadCv() {
+    @GetMapping("/download-cv/{filename}")
+    public ResponseEntity<byte[]> downloadCv(@PathVariable String filename) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User currentUser = (User) authentication.getPrincipal();
-            byte[] fileData = jobSeekerService.getFile(currentUser.getId());
+            byte[] fileData = jobSeekerService.getFile(filename);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION)
                     .contentType(MediaType.APPLICATION_PDF)

@@ -31,32 +31,20 @@ export default function JobPosts() {
   }, []);
 
   useEffect(() => {
+    if (!Array.isArray(jobPosts)) return;
+  
     const filtered = jobPosts.filter((job) => {
-      const matchesSearchTerm =
-        job.title.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesContractType =
-        !contractCategory || job.contractType === contractCategory;
-      const matchesExperienceLevel =
-        !experienceCategory || job.experienceLevel === experienceCategory;
-      const matchesJobType =
-        !jobTypeCategory || job.jobType === jobTypeCategory;
-
-      return (
-        matchesSearchTerm &&
-        matchesContractType &&
-        matchesExperienceLevel &&
-        matchesJobType
-      );
+      const matchesSearchTerm = job.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesContractType = !contractCategory || job.contractType === contractCategory;
+      const matchesExperienceLevel = !experienceCategory || job.experienceLevel === experienceCategory;
+      const matchesJobType = !jobTypeCategory || job.jobType === jobTypeCategory;
+  
+      return matchesSearchTerm && matchesContractType && matchesExperienceLevel && matchesJobType;
     });
+  
     setFilteredPosts(filtered);
-  }, [
-    searchTerm,
-    contractCategory,
-    experienceCategory,
-    jobTypeCategory,
-    jobPosts,
-  ]);
+  }, [searchTerm, contractCategory, experienceCategory, jobTypeCategory, jobPosts]);
+  
 
   const clearFilters = () => {
     setSearchTerm("");

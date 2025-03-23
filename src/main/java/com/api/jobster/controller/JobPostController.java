@@ -156,6 +156,7 @@ public class JobPostController {
                 jobApplication.getJobPost().getJobTitle(),
                 jobApplication.getJobSeeker().getFirstName(),
                 jobApplication.getJobSeeker().getLastName(),
+                jobApplication.getCvPath(),
                 jobApplication.getApplicationDate()
         );
     }
