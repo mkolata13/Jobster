@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "job_applications")
+@Table(name = "job_applications", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"job_post_id", "applicant_id"})
+})
 public class JobApplication {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

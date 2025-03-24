@@ -34,7 +34,7 @@ build/
 
 ### OWN ###
 backend/.env
-
+upload
 ### FRONTEND ###
 
 /jobster-frontend/.env
