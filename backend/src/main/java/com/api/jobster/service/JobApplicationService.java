@@ -9,6 +9,7 @@ import com.api.jobster.repository.JobPostRepository;
 import com.api.jobster.repository.JobSeekerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +27,17 @@ public class JobApplicationService {
         return jobApplications.orElseGet(ArrayList::new);
     }
 
+    @Transactional
     public JobApplication createJobApplication(Long jobPostId, Long jobSeekerId) {
         JobPost jobPost = jobPostRepository.findById(jobPostId)
                 .orElseThrow(() -> new RuntimeException("JobPost does not exist!"));
 
         JobSeeker jobSeeker = jobSeekerRepository.findById(jobSeekerId)
                 .orElseThrow(() -> new RuntimeException("JobSeeker does not exist!"));
+
+        if (jobApplicationRepository.existsByJobSeekerAndJobPost(jobSeeker, jobPost)) {
+            throw new RuntimeException("User has already applied to this job post!");
+        }
 
         JobApplication jobApplication = new JobApplication();
         jobApplication.setJobSeeker(jobSeeker);
